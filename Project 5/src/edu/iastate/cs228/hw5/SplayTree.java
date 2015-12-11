@@ -392,67 +392,6 @@ public class SplayTree<E extends Comparable<? super E>> extends AbstractSet<E> {
 	}
 
 	/**
-	 * Carries out a left rotation at a node such that after the rotation its
-	 * former parent becomes its left child.
-	 * 
-	 * @param current
-	 */
-	private void leftRotate(Node current) {
-		Node x = current.parent;
-		Node y = x.parent;
-
-		// Move "current"'s left subtree to its former parent.
-		x.right = current.left;
-		if (current.left != null) {
-			current.left.parent = x;
-		}
-
-		// Make currents parent become a child of "current".
-		current.left = x;
-		x.parent = current;
-
-		// Make "current" become a child of currents parents former parent.
-		current.parent = y;
-		if (y == null) {
-			root = current;
-		} else if (y.right == x) {
-			y.right = current;
-		} else {
-			y.left = current;
-		}
-	}
-
-	/**
-	 * Carries out a right rotation at a node such that after the rotation its
-	 * former parent becomes its right child.
-	 * 
-	 * @param current
-	 */
-	private void rightRotate(Node current) {
-		Node x = current.parent;
-		Node y = x.parent;
-
-		// Move "current"'s right subtree to its former parent.
-		x.left = current.right;
-		if (current.right != null)
-			current.right.parent = x;
-
-		// Make current's parent become a child of "current".
-		current.right = x;
-		x.parent = current;
-
-		// Make "current" become a child of parents former parent.
-		current.parent = y;
-		if (y == null) {
-			this.root = current;
-		} else if (y.right == x) {
-			y.right = current;
-		} else {
-			y.left = current;
-		}
-	}
-
-	/**
 	 * If a left child: Carries out a left rotation at a node such that after
 	 * the rotation its former parent becomes its left child.
 	 * 
@@ -466,6 +405,7 @@ public class SplayTree<E extends Comparable<? super E>> extends AbstractSet<E> {
 		Node y = x.parent;
 
 		if (current == current.parent.left) {
+			// Right rotate
 			// Move "current"'s right subtree to its former parent.
 			x.left = current.right;
 			if (current.right != null)
@@ -485,6 +425,7 @@ public class SplayTree<E extends Comparable<? super E>> extends AbstractSet<E> {
 				y.left = current;
 			}
 		} else {
+			// Left rotate
 			// Move "current"'s left subtree to its former parent.
 			x.right = current.left;
 			if (current.left != null) {
