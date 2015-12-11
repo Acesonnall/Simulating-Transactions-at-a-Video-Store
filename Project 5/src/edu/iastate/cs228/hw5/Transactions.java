@@ -38,7 +38,7 @@ public class Transactions {
 
 	private static void begin() throws FileNotFoundException, IllegalArgumentException, FilmNotInInventoryException,
 			AllCopiesRentedOutException {
-		VideoStore vs = new VideoStore("videoList1.txt");
+		VideoStore vs = new VideoStore("videoList4.txt");
 		int key = 0;
 		boolean exit = false;
 		Scanner scan = new Scanner(System.in);

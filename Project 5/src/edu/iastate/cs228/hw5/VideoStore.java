@@ -149,7 +149,7 @@ public class VideoStore {
 	 */
 	public boolean available(String film) {
 		Video v = this.inventory.findElement(new Video(film));
-		return v != null ? v.getNumAvailableCopies() != 0 : false;
+		return v != null ? v.getNumAvailableCopies() > 0 : false;
 	}
 
 	/**
@@ -302,15 +302,13 @@ public class VideoStore {
 				bs[1] = true;
 			}
 		}
+		scan.close();
 		if (bs[0]) {
-			scan.close();
 			throw new IllegalArgumentException(s.trim());
 		}
 		if (bs[1]) {
-			scan.close();
 			throw new FilmNotInInventoryException(s.trim());
 		}
-		scan.close();
 	}
 
 	// ------------------------
@@ -424,7 +422,6 @@ public class VideoStore {
 		if (temp.length() <= 2) {
 			return 1;
 		}
-
 		checker = temp.charAt(0) == '(' ? true : false;
 		checker = temp.charAt(temp.length() - 1) == ')' ? true : false;
 

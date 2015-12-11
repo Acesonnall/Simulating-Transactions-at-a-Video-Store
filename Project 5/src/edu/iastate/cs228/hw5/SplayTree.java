@@ -155,9 +155,8 @@ public class SplayTree<E extends Comparable<? super E>> extends AbstractSet<E> {
 		Node potentialAdd = findEntry(data);
 
 		if (potentialAdd == null) {
-			current.left = current.right = null;
 			root = current;
-			size = 1;
+			++size;
 			return true;
 		}
 
@@ -166,13 +165,13 @@ public class SplayTree<E extends Comparable<? super E>> extends AbstractSet<E> {
 			splay(potentialAdd);
 			return false;
 		} else if (comp > 0) {
-			potentialAdd.left = new Node(data);
+			potentialAdd.left = current;
 			potentialAdd.left.parent = potentialAdd;
 			++size;
 			splay(potentialAdd.left);
 			return true;
 		} else {
-			potentialAdd.right = new Node(data);
+			potentialAdd.right = current;
 			potentialAdd.right.parent = potentialAdd;
 			++size;
 			splay(potentialAdd.right);
@@ -191,11 +190,7 @@ public class SplayTree<E extends Comparable<? super E>> extends AbstractSet<E> {
 	 */
 	public boolean contains(E data) {
 		Node n = findEntry(data);
-		if (n == null) {
-			return false;
-		}
-		int comp = n.data.compareTo(data);
-		if (comp == 0) {
+		if (n.data.compareTo(data) == 0) {
 			splay(n);
 			return true;
 		} else {
@@ -226,16 +221,9 @@ public class SplayTree<E extends Comparable<? super E>> extends AbstractSet<E> {
 	 *         the tree
 	 */
 	public boolean remove(E data) {
-		if (size == 0) {
-			return false;
-		}
 		Node potentialRemove = findEntry(data);
 
 		int comp = potentialRemove.data.compareTo(data);
-		if (size() == 1) {
-			clear();
-			return true;
-		}
 		if (comp == 0) {
 			if ((potentialRemove.left == null && potentialRemove.right == null)
 					|| (potentialRemove.left == null && potentialRemove.right != null)
@@ -308,14 +296,9 @@ public class SplayTree<E extends Comparable<? super E>> extends AbstractSet<E> {
 	 */
 	protected Node findEntry(E data) {
 		Node current = root;
-		if (this.size() == 0) {
-			return null;
-		}
 		while (current != null) {
 			int comp = current.data.compareTo(data);
-			if (comp == 0) {
-				return current;
-			} else if (comp > 0 && current.left != null) {
+			if (comp > 0 && current.left != null) {
 				current = current.left;
 			} else if (comp < 0 && current.right != null) {
 				current = current.right;
@@ -343,14 +326,10 @@ public class SplayTree<E extends Comparable<? super E>> extends AbstractSet<E> {
 	 * @return the root of the joined subtree
 	 */
 	protected Node join(Node root1, Node root2) {
-		int state = 0;
 		while (root1.right != null) {
 			root1 = root1.right;
-			state = 1;
 		}
-
-		if (state == 1)
-			splay(root1);
+		splay(root1);
 
 		root1.right = root2;
 		root2.parent = root1;
@@ -385,13 +364,7 @@ public class SplayTree<E extends Comparable<? super E>> extends AbstractSet<E> {
 	 *            node to perform the zig operation on
 	 */
 	protected void zig(Node current) {
-		if (current == current.parent.left) {
-			rightRotate(current);
-		} else {
-			leftRotate(current);
-		}
-
-		// rotate(current);
+		rotate(current);
 	}
 
 	/**
@@ -402,13 +375,8 @@ public class SplayTree<E extends Comparable<? super E>> extends AbstractSet<E> {
 	 *            node to perform the zig-zig operation on
 	 */
 	protected void zigZig(Node current) {
-		if (current == current.parent.left) {
-			rightRotate(current.parent);
-			rightRotate(current);
-		} else {
-			leftRotate(current.parent);
-			leftRotate(current);
-		}
+		rotate(current.parent);
+		rotate(current);
 	}
 
 	/**
@@ -419,13 +387,8 @@ public class SplayTree<E extends Comparable<? super E>> extends AbstractSet<E> {
 	 *            node to perform the zig-zag operation on
 	 */
 	protected void zigZag(Node current) {
-		if (current == current.parent.left) {
-			rightRotate(current);
-			leftRotate(current);
-		} else {
-			leftRotate(current);
-			rightRotate(current);
-		}
+		rotate(current);
+		rotate(current);
 	}
 
 	/**
@@ -489,6 +452,61 @@ public class SplayTree<E extends Comparable<? super E>> extends AbstractSet<E> {
 		}
 	}
 
+	/**
+	 * If a left child: Carries out a left rotation at a node such that after
+	 * the rotation its former parent becomes its left child.
+	 * 
+	 * If a right child: Carries out a right rotation at a node such that after
+	 * the rotation its former parent becomes its right child.
+	 * 
+	 * @param current
+	 */
+	private void rotate(Node current) {
+		Node x = current.parent;
+		Node y = x.parent;
+
+		if (current == current.parent.left) {
+			// Move "current"'s right subtree to its former parent.
+			x.left = current.right;
+			if (current.right != null)
+				current.right.parent = x;
+
+			// Make current's parent become a child of "current".
+			current.right = x;
+			x.parent = current;
+
+			// Make "current" become a child of parents former parent.
+			current.parent = y;
+			if (y == null) {
+				this.root = current;
+			} else if (y.right == x) {
+				y.right = current;
+			} else {
+				y.left = current;
+			}
+		} else {
+			// Move "current"'s left subtree to its former parent.
+			x.right = current.left;
+			if (current.left != null) {
+				current.left.parent = x;
+			}
+
+			// Make currents parent become a child of "current".
+			current.left = x;
+			x.parent = current;
+
+			// Make "current" become a child of currents parents former parent.
+			current.parent = y;
+			if (y == null) {
+				root = current;
+			} else if (y.right == x) {
+				y.right = current;
+			} else {
+				y.left = current;
+			}
+		}
+	}
+
 	@Override
 	public Iterator<E> iterator() {
 		return new SplayTreeIterator();
@@ -513,19 +531,14 @@ public class SplayTree<E extends Comparable<? super E>> extends AbstractSet<E> {
 		}
 
 		if (n == null) {
-			string += "null\n";
-			return string;
+			return string += "null\n";
 		}
 
 		if (n.left == null && n.right == null) {
-			string += n.data + "\n";
-			return string;
+			return string += n.data + "\n";
 		} else {
-			string += n.data + "\n";
-			string += toStringRec(n.left, depth + 1);
-			string += toStringRec(n.right, depth + 1);
+			string += n.data + "\n" + toStringRec(n.left, depth + 1) + toStringRec(n.right, depth + 1);
 		}
-
 		return string;
 	}
 
