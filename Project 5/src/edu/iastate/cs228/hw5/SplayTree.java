@@ -151,32 +151,30 @@ public class SplayTree<E extends Comparable<? super E>> extends AbstractSet<E> {
 	 */
 	@Override
 	public boolean add(E data) {
-		Node current = new Node(data);
 		Node potentialAdd = findEntry(data);
 
-		if (potentialAdd == null) {
-			root = current;
-			++size;
-			return true;
+		if (potentialAdd != null) {
+			int comp = potentialAdd.data.compareTo(data);
+			if (comp == 0) {
+				splay(potentialAdd);
+				return false;
+			} else if (comp > 0) {
+				potentialAdd.left = new Node(data);
+				potentialAdd.left.parent = potentialAdd;
+				++size;
+				splay(potentialAdd.left);
+				return true;
+			} else {
+				potentialAdd.right = new Node(data);
+				potentialAdd.right.parent = potentialAdd;
+				++size;
+				splay(potentialAdd.right);
+				return true;
+			}
 		}
-
-		int comp = potentialAdd.data.compareTo(data);
-		if (comp == 0) {
-			splay(potentialAdd);
-			return false;
-		} else if (comp > 0) {
-			potentialAdd.left = current;
-			potentialAdd.left.parent = potentialAdd;
-			++size;
-			splay(potentialAdd.left);
-			return true;
-		} else {
-			potentialAdd.right = current;
-			potentialAdd.right.parent = potentialAdd;
-			++size;
-			splay(potentialAdd.right);
-			return true;
-		}
+		root = new Node(data);
+		++size;
+		return true;
 	}
 
 	/**
