@@ -219,39 +219,97 @@ public class SplayTree<E extends Comparable<? super E>> extends AbstractSet<E> {
 	 *         the tree
 	 */
 	public boolean remove(E data) {
-		Node potentialRemove = findEntry(data);
-
-		int comp = potentialRemove.data.compareTo(data);
+		Node toRemove = findEntry(data);
+		int comp = toRemove.data.compareTo(data);
+		// Node to be removed exists
 		if (comp == 0) {
-			if ((potentialRemove.left == null && potentialRemove.right == null)
-					|| (potentialRemove.left == null && potentialRemove.right != null)
-					|| (potentialRemove.right == null && potentialRemove.left != null)) {
-				unlinkNode(potentialRemove);
-				splay(potentialRemove.parent);
-				return true;
-			} else {
-				SplayTree<E> temp = new SplayTree<E>();
-				potentialRemove.left.parent = null;
-				potentialRemove.right.parent = null;
-
-				temp.root = potentialRemove.left;
-
-				if (potentialRemove == this.root) {
-					this.root = temp.join(potentialRemove.left, potentialRemove.right);
-				} else if (potentialRemove == potentialRemove.parent.left) {
-					potentialRemove.parent.left = temp.join(potentialRemove.left, potentialRemove.right);
-					splay(potentialRemove.parent);
-				} else {
-					potentialRemove.parent.right = temp.join(potentialRemove.left, potentialRemove.right);
-					splay(potentialRemove.parent);
+			// Is not the root
+			if (toRemove.parent != null) {
+				// Is a right child
+				if (toRemove.parent.right == toRemove) {
+					// Has one or more children
+					if (toRemove.left == null || toRemove.right == null) {
+						// Has a right child
+						if (toRemove.right != null) {
+							toRemove.parent.right = toRemove.right;
+							toRemove.right.parent = toRemove.parent;
+						}
+						// Has a left child
+						else if (toRemove.left != null) {
+							toRemove.parent.right = toRemove.left;
+							toRemove.left.parent = toRemove.parent;
+						}
+						// Has no children
+						else {
+							toRemove.parent.right = null;
+						}
+					} else // Has two children
+					{
+						toRemove.left.parent = null;
+						toRemove.right.parent = null;
+						toRemove.parent.right = join(toRemove.left, toRemove.right);
+					}
 				}
-				size--;
+				// Is a left child
+				else {
+					// Has one or more children
+					if (toRemove.left == null || toRemove.right == null) {
+						// Has a right child
+						if (toRemove.right != null) {
+							toRemove.parent.left = toRemove.right;
+							toRemove.right.parent = toRemove.parent;
+						}
+						// Has a left child
+						else if (toRemove.left != null) {
+							toRemove.parent.left = toRemove.left;
+							toRemove.left.parent = toRemove.parent;
+						}
+						// Has no children
+						else {
+							toRemove.parent.left = null;
+						}
+					}
+					// Has two children
+					else {
+						toRemove.left.parent = null;
+						toRemove.right.parent = null;
+						toRemove.parent.left = join(toRemove.left, toRemove.right);
+					}
+				}
+				--size;
+				splay(toRemove.parent);
 				return true;
 			}
-		} else {
-			splay(potentialRemove);
-			return false;
+			// Is the root
+			else {
+				// Has one or more children
+				if (toRemove.left == null || toRemove.right == null) {
+					// Has a right child
+					if (toRemove.right != null) {
+						this.root = toRemove.right;
+					}
+					// Has a left child
+					else if (toRemove.left != null) {
+						this.root = toRemove.left;
+					}
+					// Has no children
+					else {
+						this.root = null;
+					}
+				}
+				// Has two children
+				else {
+					toRemove.left.parent = null;
+					toRemove.right.parent = null;
+					this.root = join(toRemove.left, toRemove.right);
+				}
+				--size;
+				return true;
+			}
 		}
+		// Node to be removed is not found
+		splay(toRemove);
+		return false;
 	}
 
 	/**
@@ -548,7 +606,7 @@ public class SplayTree<E extends Comparable<? super E>> extends AbstractSet<E> {
 			}
 			return current;
 		} else {
-			// we need to go up the tree to the closest ancestor that is
+			// we need to go up the tree the closest ancestor that is
 			// a left child; its parent must be the successor
 			Node current = n.parent;
 			Node child = n;
