@@ -606,7 +606,7 @@ public class SplayTree<E extends Comparable<? super E>> extends AbstractSet<E> {
 			}
 			return current;
 		} else {
-			// we need to go up the tree the closest ancestor that is
+			// we need to go up the tree to the closest ancestor that is
 			// a left child; its parent must be the successor
 			Node current = n.parent;
 			Node child = n;
