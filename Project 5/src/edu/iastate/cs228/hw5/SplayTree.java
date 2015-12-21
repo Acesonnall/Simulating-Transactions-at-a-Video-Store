@@ -191,10 +191,9 @@ public class SplayTree<E extends Comparable<? super E>> extends AbstractSet<E> {
 		if (n.data.compareTo(data) == 0) {
 			splay(n);
 			return true;
-		} else {
-			splay(n);
-			return false;
 		}
+		splay(n);
+		return false;
 	}
 
 	/**

@@ -418,27 +418,25 @@ public class VideoStore {
 	public static int parseNumCopies(String line) {
 		String temp = line.substring(line.lastIndexOf(" ")).trim();
 		boolean checker = false;
+		if (temp.length() > 2) {
+			checker = temp.charAt(0) == '(' ? true : false;
+			checker = temp.charAt(temp.length() - 1) == ')' ? true : false;
 
-		if (temp.length() <= 2) {
-			return 1;
-		}
-		checker = temp.charAt(0) == '(' ? true : false;
-		checker = temp.charAt(temp.length() - 1) == ')' ? true : false;
+			while (checker == true) {
+				String possibleN = "";
 
-		while (checker == true) {
-			String possibleN = "";
+				for (int i = 1; i < temp.length() - 1; i++)
+					if (temp.charAt(i) >= '0' && temp.charAt(i) <= '9'
+							|| (temp.charAt(i) == '-' && (temp.charAt(i + 1) >= '0' && temp.charAt(i + 1) <= '9'))) {
+						possibleN += temp.charAt(i);
+					} else {
+						checker = false;
+						break;
+					}
 
-			for (int i = 1; i < temp.length() - 1; i++)
-				if (temp.charAt(i) >= '0' && temp.charAt(i) <= '9'
-						|| (temp.charAt(i) == '-' && (temp.charAt(i + 1) >= '0' && temp.charAt(i + 1) <= '9'))) {
-					possibleN += temp.charAt(i);
-				} else {
-					checker = false;
-					break;
+				if (checker = true && !possibleN.isEmpty()) {
+					return Integer.parseInt(possibleN);
 				}
-
-			if (checker = true && !possibleN.isEmpty()) {
-				return Integer.parseInt(possibleN);
 			}
 		}
 		return 1;
